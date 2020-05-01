@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>105703011 資科四 林彥賓 hw1</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-array.v1.min.js"></script>
+    <script src="https://d3js.org/d3-geo.v1.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-0">
+                <div style="margin:0px auto;">
+                    <div id="canvas"></div>
+                    <div id="float"></div>
+                    <div id="slider"></div>
+                    <span>
+                        0人
+                        <svg height="5" width="80%">
+                          <defs>
+                            <linearGradient id="linearGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" style="stop-color:rgb(51,255,51);stop-opacity:1" />
+                              <stop offset="100%" style="stop-color:rgb(204,0,0);stop-opacity:1" />
+                            </linearGradient>
+                          </defs>
+                          <rect id="scale_color" width="100%" height="5" fill="url(#linearGradient)" />
+                        </svg>
+                        11人
+                    </span>
+                    <div id="show">
+                    </div>
+                </div>
+                <div class="card" style="width: 550px;">
+                    <div class="card-body">
+                        <h1 class="card-title">各縣市武漢肺炎確診人數</h1>
+                        <hr>
+                        <h4 class="card-subtitle mb-2 text-muted">說明</h4>
+                        <p>案依訂時間間隔會切換月分變化，滑鼠游動到各縣市會顯示該縣市當時的確診人數</p>
+                        <hr>
+                        <h4 class="card-subtitle mb-2 text-muted">設計選擇</h4>
+                        <p>以顏色的色相變化來顯示各區域感染人數差異</p>
+                        <hr>
+                        <h4 class="card-subtitle mb-2 text-muted">經驗法則: Overview First, Zoom and Filter, Details
+                            on Demand</h4>
+                        <p class="card-text">
+                            先以顏色分布看出概略人數變化，滑鼠移動過去後聚焦在該縣市確切人數
+                        </p>
+                        <hr>
+                        <p>
+                            資料來源:
+                            <a href="https://data.gov.tw/dataset/118038">政府資料開放平台</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .hidden {
+            display: none;
+        }
+        div.tooltip {
+            color: #222;
+            background-color: rgba(226, 226, 226, 0.38);
+            padding: .5em;
+            text-shadow: #f5f5f5 0 1px 0;
+            border-radius: 2px;
+            opacity: 0.9;
+            position: absolute;
+        }
+        .site {
+            stroke-width: .5px;
+            stroke: #333;
+            fill: #9cf;
+        }
+    </style>
+    <script>
+        // 寬高
+        const etendues = d3.select("#canvas").node();
+        const width = parseInt(window.getComputedStyle(etendues).width);
+        const height = width / 1.5;
+
+        // 地圖
+        const geo_path = "https://raw.githubusercontent.com/yezongyang/china-geojson/master/china.json";
+
+        let data_group = {};
+        let data = [{}, {}, {}, {}];
+        let max = 11;
+
+        Promise.all([
+            d3.json(geo_path)
+        ]).then(values => {
+
+            // projection
+            let projection = d3.geoMercator()
+                .center([115, 40])
+                .scale(height)
+                .translate([width / 2, height / 2.5]);
+
+            let path = d3.geoPath().projection(projection);
+
+            let geo = values[0].features;
+
+            //畫布
+            let svg = d3.select("#canvas")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+
+            //地圖
+            svg.selectAll('path')
+                .data(geo)
+                .enter()
+                .append('path')
+                .attr('d', path)
+                .attr("stroke", "#000")//線的顏色
+                .attr("fill", "#00C200")
+                .attr("id", (d) => 'city_' + d.properties.COUNTYNAME)
+                .attr("fill-opacity", 1)
+                .on('mousemove', function (d) {
+
+                    d3.select(this).attr("fill-opacity", 0.5);
+
+                    let now_color = this.getAttribute("fill");
+
+                    let mouse = d3.mouse(this).map(function (d) {
+                        return parseInt(d);
+                    });
+/*
+                    win.classed('hidden', false)
+                        .attr('style', 'left:' + (mouse[0] + 15) +
+                            'px; top:' + (mouse[1] - 35) + 'px')
+                        .html(color_invert[now_color] + '人');*/
+                })
+                .on('mouseout', function () {
+                    d3.select(this).attr("fill-opacity", 1);
+                    //win.classed('hidden', true);
+                });
+
+            let show = d3.select('#show')
+                .attr("align", "center");
+
+            // circle
+            let sites = svg.selectAll(".site")
+                .data(geo);
+
+
+            // map of circle event
+            let displaySites = function (value) {
+                console.log(value);
+
+                svg.selectAll(".site").remove()
+
+                sites.enter().append("circle")
+                    .attr("class", "site")
+                    .attr('cx', d => {
+                        return projection(d.properties.cp)[0]
+                    })
+                    .attr('cy', d => {
+                        return projection(d.properties.cp)[1]
+                    })
+                    .attr("r", value);
+
+
+                sites.remove();
+
+            };
+
+            // slider
+            let slider = d3
+                .sliderHorizontal()
+                .min(0)
+                .max(10)
+                .step(1)
+                .width(300)
+                .displayValue(false)
+                .on('onchange', value => {
+
+
+                    /*
+            var newData = _(site_data).filter( function(site) {
+                return site.created_at < value;
+            })
+            // console.log("New set size ", newData.length);
+
+            displaySites(newData);
+            */
+                    displaySites(value);
+
+                });
+
+            d3.select("#slider")
+                .append('svg')
+                .append('g')
+                .attr('transform', 'translate(30,30)')
+                .call(slider);
+        });
+
+    </script>
+</body>
+</html>
