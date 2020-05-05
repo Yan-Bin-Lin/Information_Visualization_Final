@@ -17,19 +17,6 @@
                     <div id="canvas"></div>
                     <div id="float"></div>
                     <div id="slider"></div>
-                    <span>
-                        0人
-                        <svg height="5" width="80%">
-                          <defs>
-                            <linearGradient id="linearGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" style="stop-color:rgb(51,255,51);stop-opacity:1" />
-                              <stop offset="100%" style="stop-color:rgb(204,0,0);stop-opacity:1" />
-                            </linearGradient>
-                          </defs>
-                          <rect id="scale_color" width="100%" height="5" fill="url(#linearGradient)" />
-                        </svg>
-                        11人
-                    </span>
                     <div id="show">
                     </div>
                 </div>
@@ -108,7 +95,10 @@
             let svg = d3.select("#canvas")
                 .append("svg")
                 .attr("width", width)
-                .attr("height", height)
+                .attr("height", height);
+
+            //float window
+            let win = d3.select("#float").attr('class', 'hidden tooltip');
 
             //地圖
             svg.selectAll('path')
@@ -118,30 +108,8 @@
                 .attr('d', path)
                 .attr("stroke", "#000")//線的顏色
                 .attr("fill", "#00C200")
-                .attr("id", (d) => 'city_' + d.properties.COUNTYNAME)
-                .attr("fill-opacity", 1)
-                .on('mousemove', function (d) {
-
-                    d3.select(this).attr("fill-opacity", 0.5);
-
-                    let now_color = this.getAttribute("fill");
-
-                    let mouse = d3.mouse(this).map(function (d) {
-                        return parseInt(d);
-                    });
-/*
-                    win.classed('hidden', false)
-                        .attr('style', 'left:' + (mouse[0] + 15) +
-                            'px; top:' + (mouse[1] - 35) + 'px')
-                        .html(color_invert[now_color] + '人');*/
-                })
-                .on('mouseout', function () {
-                    d3.select(this).attr("fill-opacity", 1);
-                    //win.classed('hidden', true);
-                });
-
-            let show = d3.select('#show')
-                .attr("align", "center");
+                .attr("name", (d) => d.properties.name)
+                .attr("fill-opacity", 1);
 
             // circle
             let sites = svg.selectAll(".site")
@@ -150,9 +118,8 @@
 
             // map of circle event
             let displaySites = function (value) {
-                console.log(value);
 
-                svg.selectAll(".site").remove()
+                svg.selectAll(".site").remove();
 
                 sites.enter().append("circle")
                     .attr("class", "site")
@@ -162,7 +129,29 @@
                     .attr('cy', d => {
                         return projection(d.properties.cp)[1]
                     })
-                    .attr("r", value);
+                    .attr("r", value)
+                    .attr("name", d => {
+                        return d.properties.name
+                    })
+                    .on('mousemove', function (d) {
+
+                        d3.select(this).attr("fill-opacity", 0.5);
+
+                        let now_color = this.getAttribute("fill");
+
+                        let mouse = d3.mouse(this).map(function (d) {
+                            return parseInt(d);
+                        });
+
+                        win.classed('hidden', false)
+                            .attr('style', 'left:' + (mouse[0] + 15) +
+                                'px; top:' + (mouse[1] - 35) + 'px')
+                            .html(this.getAttribute('name') + ':' + this.getAttribute('r') + '人');
+                    })
+                    .on('mouseout', function () {
+                        d3.select(this).attr("fill-opacity", 1);
+                        win.classed('hidden', true);
+                    });
 
 
                 sites.remove();
@@ -175,25 +164,17 @@
                 .min(0)
                 .max(10)
                 .step(1)
-                .width(300)
+                .width(width - 50)
                 .displayValue(false)
                 .on('onchange', value => {
 
-
-                    /*
-            var newData = _(site_data).filter( function(site) {
-                return site.created_at < value;
-            })
-            // console.log("New set size ", newData.length);
-
-            displaySites(newData);
-            */
                     displaySites(value);
 
                 });
 
             d3.select("#slider")
                 .append('svg')
+                .attr("width", width)
                 .append('g')
                 .attr('transform', 'translate(30,30)')
                 .call(slider);
