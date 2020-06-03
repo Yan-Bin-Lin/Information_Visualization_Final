@@ -61,7 +61,7 @@
         .site {
             stroke-width: .5px;
             stroke: #333;
-            fill: #9cf;
+            fill: #6495ed;
         }
     </style>
     <script>
@@ -106,8 +106,8 @@
                 .enter()
                 .append('path')
                 .attr('d', path)
-                .attr("stroke", "#000")//線的顏色
-                .attr("fill", "#00C200")
+                .attr("stroke", "white")//線的顏色
+                .attr("fill", "#242424")
                 .attr("name", (d) => d.properties.name)
                 .attr("fill-opacity", 1);
 
@@ -118,7 +118,7 @@
 
             // map of circle event
             let displaySites = function (value) {
-
+                value = value[1] - value[0];
                 svg.selectAll(".site").remove();
 
                 sites.enter().append("circle")
@@ -165,7 +165,8 @@
                 .max(10)
                 .step(1)
                 .width(width - 50)
-                .displayValue(false)
+                .value([0,0])
+                //.displayValue(false)
                 .on('onchange', value => {
 
                     displaySites(value);
