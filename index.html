@@ -50,7 +50,7 @@
             display: none;
         }
         div.tooltip {
-            color: #222;
+            color: lightskyblue;
             background-color: rgba(226, 226, 226, 0.38);
             padding: .5em;
             text-shadow: #f5f5f5 0 1px 0;
@@ -73,13 +73,38 @@
         // 地圖
         const geo_path = "https://raw.githubusercontent.com/yezongyang/china-geojson/master/china.json";
 
-        let data_group = {};
-        let data = [{}, {}, {}, {}];
-        let max = 11;
+        // 確診資料
+        const data_path = "https://raw.githubusercontent.com/Yan-Bin-Lin/Information_Visualization_Final/master/ChinaData.csv";
 
         Promise.all([
-            d3.json(geo_path)
+            d3.json(geo_path),
+            d3.csv(data_path),
         ]).then(values => {
+            // data
+            data = [];
+
+            function merage(l, r, data){
+                let row = data[l];
+                for(let i = l+1;i < r;i ++){
+                    for(let k in data[i]){
+                        row[k] = parseInt(row[k]) + parseInt(data[i][k]);
+                    }
+                }
+                return row;
+            }
+
+            data.push(merage(0, 6, values[1]));
+            data.push(merage(6, 35, values[1]));
+            data.push(merage(35, 66, values[1]));
+            data.push(merage(66, 96, values[1]));
+            data.push(merage(96, 127, values[1]));
+
+            // scale
+            max = 66953;
+            let scale = d3.scalePow()
+                    .exponent(0.3)
+                    .range([0,30])
+                    .domain([0,max]);
 
             // projection
             let projection = d3.geoMercator()
@@ -116,10 +141,8 @@
             let sites = svg.selectAll(".site")
                 .data(geo);
 
-
             // map of circle event
             let displaySites = function (value) {
-                value = value[1] - value[0];
                 svg.selectAll(".site").remove();
 
                 sites.enter().append("circle")
@@ -130,7 +153,15 @@
                     .attr('cy', d => {
                         return projection(d.properties.cp)[1]
                     })
-                    .attr("r", value)
+                    .attr("r", d => {
+                        let  sum = 0;
+                        for(let i = value[0] - 1; i < value[1]; i++){
+                            if ((d.properties.name in data[i])){
+                                sum += data[i][d.properties.name];
+                            }
+                        }
+                        return scale(sum);
+                    })
                     .attr("name", d => {
                         return d.properties.name
                     })
@@ -147,7 +178,7 @@
                         win.classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 15) +
                                 'px; top:' + (mouse[1] - 35) + 'px')
-                            .html(this.getAttribute('name') + ':' + this.getAttribute('r') + '人');
+                            .html(this.getAttribute('name') + ':' + parseInt(scale.invert(parseFloat(this.getAttribute('r')))) + '人');
                     })
                     .on('mouseout', function () {
                         d3.select(this).attr("fill-opacity", 1);
@@ -159,20 +190,23 @@
 
             };
 
+            // trigger
+            let dispatch = d3.dispatch("onchange");
+
             // slider
             let slider = d3
                 .sliderHorizontal()
-                .min(0)
-                .max(10)
+                .ticks(5)
+                .tickFormat(d3.format(',.0d'))
+                .min('1')
+                .max('5')
                 .step(1)
                 .width(width - 50)
-                .value([0,0])
-                //.displayValue(false)
+                .value([1, 1])
                 .on('onchange', value => {
-
                     displaySites(value);
-
                 });
+
 
             d3.select("#slider")
                 .append('svg')
@@ -180,6 +214,7 @@
                 .append('g')
                 .attr('transform', 'translate(30,30)')
                 .call(slider);
+
         });
 
     </script>
