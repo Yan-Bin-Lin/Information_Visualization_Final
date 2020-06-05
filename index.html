@@ -25,16 +25,7 @@
                         <h1 class="card-title">各縣市武漢肺炎確診人數</h1>
                         <hr>
                         <h4 class="card-subtitle mb-2 text-muted">說明</h4>
-                        <p>案依訂時間間隔會切換月分變化，滑鼠游動到各縣市會顯示該縣市當時的確診人數</p>
-                        <hr>
-                        <h4 class="card-subtitle mb-2 text-muted">設計選擇</h4>
-                        <p>以顏色的色相變化來顯示各區域感染人數差異</p>
-                        <hr>
-                        <h4 class="card-subtitle mb-2 text-muted">經驗法則: Overview First, Zoom and Filter, Details
-                            on Demand</h4>
-                        <p class="card-text">
-                            先以顏色分布看出概略人數變化，滑鼠移動過去後聚焦在該縣市確切人數
-                        </p>
+                        <p>拖拉滑條訂會切換月分範圍變化，滑鼠游動到各省圓圈會顯示該縣市當時的確診人數</p>
                         <hr>
                         <p>
                             資料來源:
@@ -50,7 +41,7 @@
             display: none;
         }
         div.tooltip {
-            color: lightskyblue;
+            color: orangered;
             background-color: rgba(226, 226, 226, 0.38);
             padding: .5em;
             text-shadow: #f5f5f5 0 1px 0;
@@ -190,9 +181,6 @@
 
             };
 
-            // trigger
-            let dispatch = d3.dispatch("onchange");
-
             // slider
             let slider = d3
                 .sliderHorizontal()
@@ -215,6 +203,7 @@
                 .attr('transform', 'translate(30,30)')
                 .call(slider);
 
+            displaySites([1,1]);
         });
 
     </script>
