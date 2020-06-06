@@ -188,9 +188,8 @@
 
                         let now_color = this.getAttribute("fill");
 
-                        let mouse = d3.mouse(this).map(function (d) {
-                            return parseInt(d);
-                        });
+                        //let mouse = d3.mouse(this);
+                        let mouse = [d3.event.pageX,  d3.event.pageY];
 
                         win.classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 15) +
@@ -210,7 +209,7 @@
             // slider
             let slider = d3
                 .sliderHorizontal()
-                .ticks(5)
+                .ticks(0)
                 .tickFormat(d3.format(',.0d'))
                 .min('1')
                 .max('6')
