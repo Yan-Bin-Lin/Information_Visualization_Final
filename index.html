@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>105703011 資科四 林彥賓 hw1</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-geo.v1.min.js"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://unpkg.com/d3-simple-slider"></script>
 </head>
+
 <body class="bgc">
     <div class="container">
         <div class="row justify-content-center">
@@ -16,7 +19,9 @@
                 <div style="margin:0px auto;">
                     <div id="canvas"></div>
                     <div id="float"></div>
+                    <div id="my_dataviz"></div>
                     <div id="slider"></div>
+                    <div id="canvas2"></div>
                     <div id="show">
                     </div>
                 </div>
@@ -40,6 +45,7 @@
         .hidden {
             display: none;
         }
+
         div.tooltip {
             color: orangered;
             background-color: rgba(226, 226, 226, 0.38);
@@ -49,25 +55,41 @@
             opacity: 0.9;
             position: absolute;
         }
+
         .site {
             stroke-width: .5px;
             stroke: #333;
             fill: #6495ed;
         }
+
         .bgc {
             background-color: #242424;
             color: white;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
+
         text {
             opacity: 1;
             color: white;
         }
+
         hr {
             border-top-color: rgba(255, 255, 255, 0.3);
         }
+
         .text-muted {
-            color: #6495ed!important;
+            color: #6495ed !important;
+        }
+
+        .ChartPath {
+            fill: none;
+            stroke: rgb(100, 149, 237);
+            opacity: 0.5;
+        }
+
+        .ChartAxis {
+            opacity: 0.8;
+            color: white;
         }
     </style>
     <script>
@@ -89,10 +111,10 @@
             // data
             data = [];
 
-            function merage(l, r, data){
+            function merage(l, r, data) {
                 let row = data[l];
-                for(let i = l+1;i < r;i ++){
-                    for(let k in data[i]){
+                for (let i = l + 1; i < r; i++) {
+                    for (let k in data[i]) {
                         row[k] = parseInt(row[k]) + parseInt(data[i][k]);
                     }
                 }
@@ -106,9 +128,9 @@
             data.push(merage(66, 96, values[1]));
             data.push(merage(96, 127, values[1]));
              */
-            for(let i = 0;i < 127;i ++) {
-                for(let k in values[1][i]){
-                    if(k !== "日期"){
+            for (let i = 0; i < 127; i++) {
+                for (let k in values[1][i]) {
+                    if (k !== "日期") {
                         values[1][i][k] = parseInt(values[1][i][k]);
                     }
                 }
@@ -118,9 +140,9 @@
             // scale
             max = 66953;
             let scale = d3.scalePow()
-                    .exponent(0.3)
-                    .range([0,30])
-                    .domain([0,max]);
+                .exponent(0.3)
+                .range([0, 30])
+                .domain([0, max]);
 
             // projection
             let projection = d3.geoMercator()
@@ -171,9 +193,9 @@
                         return projection(d.properties.cp)[1]
                     })
                     .attr("r", d => {
-                        let  sum = 0;
-                        for(let i = value[0]; i <= value[1]; i++){
-                            if ((d.properties.name in data[i])){
+                        let sum = 0;
+                        for (let i = value[0]; i <= value[1]; i++) {
+                            if ((d.properties.name in data[i])) {
                                 sum += data[i][d.properties.name];
                             }
                         }
@@ -189,7 +211,7 @@
                         let now_color = this.getAttribute("fill");
 
                         //let mouse = d3.mouse(this);
-                        let mouse = [d3.event.pageX,  d3.event.pageY];
+                        let mouse = [d3.event.pageX, d3.event.pageY];
 
                         win.classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 15) +
@@ -204,7 +226,7 @@
                 sites.remove();
             };
 
-            displaySites([1,1]);
+            displaySites([1, 1]);
 
             // slider
             let slider = d3
@@ -219,6 +241,7 @@
                 .on('onchange', value => {
                     displaySites([tickScale(value[0]), tickScale(value[1])]);
                     displayTicksText();
+                    MediaPara(tickScale(value[0]), tickScale(value[1]));/////////////
                 });
 
             d3.select("#slider")
@@ -247,15 +270,124 @@
 
             function displayTicksText() {
                 d3
-                .selectAll('g.parameter-value')
-                .each( function(value){
-                    d3.select(this)
-                        .select("text.cus-ticks-value")
-                        .text(data[tickScale(value)]["日期"]);
-                });
+                    .selectAll('g.parameter-value')
+                    .each(function (value) {
+                        d3.select(this)
+                            .select("text.cus-ticks-value")
+                            .text(data[tickScale(value)]["日期"]);
+                    });
             }
+
+            let svg2 = d3.select("#canvas2")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", width / 1.3)
+                .append("g")
+                .attr("transform", "translate(0,30)");
+            const FinalDataPath = "https://raw.githubusercontent.com/Yan-Bin-Lin/Information_Visualization_Final/master/FinalData.csv";
+            var HidedAxis = [0, , 2, , 4, , 6, , , , 10]//有包含在裡面的欄位，會被隱藏
+            CreMediaPara(0, 0);
+            function CreMediaPara(begin, end) {
+                d3.csv(FinalDataPath).then(function (data) {
+
+                    //去掉csv中Species的項目，只留下各種數值
+                    // Extract the list of dimensions we want to keep in the plot. Here I keep all except the column called Species
+                    dimensions = d3.keys(data[0]).filter(function (d, i) { return !HidedAxis.includes(i); })
+                    //如果是要隱藏的，會回傳false
+
+                    // For each dimension, I build a linear scale. I store all in a y object
+                    var y = {}
+                    for (i in dimensions) {
+                        name = dimensions[i]
+                        y[name] = d3.scaleLinear()
+                            .domain(d3.extent(data, function (d) { return +d[name]; }))
+                            .range([height, 0])
+                    }
+
+                    // Build the X scale -> it find the best position for each Y axis
+                    x = d3.scalePoint()
+                        .range([0, width])
+                        .padding(1)
+                        .domain(dimensions);
+
+
+                    //var slicedData = data.slice(0, 40); 
+                    update = data.slice(begin, end);
+
+
+
+                    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
+                    function path(d) {
+                        return d3.line()(dimensions.map(function (p) { return [x(p), y[p](d[p])]; }));
+                    }
+
+                    // Draw the lines
+                    svg2
+                        .selectAll("myPath")
+                        .data(update)//原本是data
+                        .enter().append("path")
+                        .attr("d", path)
+                        .attr("class", "ChartPath")
+                    //.style("fill", "none")
+                    //.style("stroke", "rgb(100,149,237)")//線段顏色
+                    //.style("opacity", 0.5)
+                    //滑鼠事件
+                    svg2.selectAll(".ChartPath")
+                        .on("mouseover", handleMouseOver)
+                        .on("mouseout", handleMouseOut)
+
+                    // Draw the axis:
+                    svg2.selectAll("myAxis")
+                        // For each dimension of the dataset I add a 'g' element:
+                        .data(dimensions).enter()
+                        .append("g")
+                        .attr("class", "ChartAxis")
+                        //.attr("color", "white")//坐標軸顏色
+                        //.style("opacity", 0.8)
+                        // I translate this element to its right position on the x axis
+                        .attr("transform", function (d) { return "translate(" + x(d) + ")"; })
+                        // And I build the axis with the call function
+                        .each(function (d) { d3.select(this).call(d3.axisLeft().scale(y[d])); })
+                        // Add axis title
+                        .append("text")
+                        .style("text-anchor", "middle")
+                        .attr("y", -9)
+                        .text(function (d) { return d; })
+                        .attr("font-size", "12px")
+                        .style("fill", "white")//坐標軸名稱顏色
+
+                    function handleMouseOver() {
+                        d3.select(this)
+                            .style("stroke", "rgb(200, 149, 237)")
+                            .style("opacity", "1")
+                            .style("stroke-width", "2px")
+                    }
+                    function handleMouseOut() {
+                        d3.selectAll(".ChartPath")
+                            .style("stroke", "rgb(100, 149, 237)")
+                            .style("opacity", "0.5")
+                            .style("stroke-width", "1px")
+                    }
+
+                })
+
+            }
+
+            function MediaPara(begin, end) {
+                Delete();
+                CreMediaPara(begin, end);
+
+            }
+
+            function Delete() {
+                d3.selectAll(".ChartPath").remove();
+                d3.selectAll(".ChartAxis").remove();
+            }
+
+
         });
 
     </script>
 </body>
+
 </html>
