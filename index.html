@@ -244,7 +244,7 @@
                 .on('onchange', value => {
                     displaySites([tickScale(value[0]), tickScale(value[1])]);
                     displayTicksText();
-                    MediaPara(tickScale(value[0]), tickScale(value[1]));/////////////
+                    MediaPara(tickScale(value[0]), tickScale(value[1])+1);/////////////
                 });
 
             d3.select("#slider")
@@ -289,7 +289,7 @@
                 .attr("transform", "translate(0,30)");
             const FinalDataPath = "https://raw.githubusercontent.com/Yan-Bin-Lin/Information_Visualization_Final/master/FinalData.csv";
             var HidedAxis = [0, , 2, , 4, , 6, , , , 10]//有包含在裡面的欄位，會被隱藏
-            CreMediaPara(0, 0);
+            CreMediaPara(0, 127);
             function CreMediaPara(begin, end) {
                 d3.csv(FinalDataPath).then(function (data) {
 
@@ -332,6 +332,7 @@
                         .attr("d", path)
                         .attr("class", "ChartPath")
                         .attr("Date", (d) => d.Date)
+                        .attr("Order", (d,i) => i+1+begin)
                     //.style("fill", "none")
                     //.style("stroke", "rgb(100,149,237)")//線段顏色
                     //.style("opacity", 0.5)
@@ -366,7 +367,7 @@
                             .style("opacity", "1")
                             .style("stroke-width", "2px");
                             let mouse = [d3.event.pageX, d3.event.pageY];
-                            
+
                         win.classed('hidden', false)
                             .attr('style', 'left:' + (mouse[0] + 15) +
                                 'px; top:' + (mouse[1] - 35) + 'px')
@@ -379,14 +380,39 @@
                             .style("stroke-width", "1px");
                         win.classed('hidden', true);
                     }
-
+                    ///////////////////////////////
+                    /*
+                    d3.selectAll(".ChartPath[Date=' 1/26']")
+                        .style("stroke", "rgb(200, 249, 237)")
+                        .style("stroke-width", "4px");
+                    */
+                    d3.selectAll(".ChartPath").classed('hidden', true);
+                    d3.select(".ChartPath[Order='1']").classed('hidden', false);//.style("stroke", "#FF5151");
                 })
 
             }
 
             function MediaPara(begin, end) {
-                Delete();
-                CreMediaPara(begin, end);
+                //Delete();
+                //CreMediaPara(begin, end);
+                for (let i = 1; i < 128; i++) {
+                    if(i < begin){
+                        d3.select(".ChartPath[Order='"+i+"']").classed('hidden', true);
+                    }
+                    else if(i < end){
+                        d3.select(".ChartPath[Order='"+i+"']").classed('hidden', false);//.style("stroke", "rgb(100, 149, 237)");
+                    }
+                    else if(i == end){
+                        d3.select(".ChartPath[Order='"+i+"']").classed('hidden', false);//.style("stroke", "#FF5151");
+                    }
+                    else{
+                        d3.select(".ChartPath[Order='"+i+"']").classed('hidden', true);
+                    }
+                }
+                //以外的
+                //.classed('hidden', true);
+                //以內的
+                //.classed('hidden', false);
 
             }
 
