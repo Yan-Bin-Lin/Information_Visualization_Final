@@ -244,7 +244,7 @@
                 .on('onchange', value => {
                     displaySites([tickScale(value[0]), tickScale(value[1])]);
                     displayTicksText();
-                    MediaPara(tickScale(value[0]), tickScale(value[1])+1);/////////////
+                    MediaPara(tickScale(value[0])+1, tickScale(value[1])+1);/////////////
                 });
 
             d3.select("#slider")
