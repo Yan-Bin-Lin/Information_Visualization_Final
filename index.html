@@ -20,21 +20,24 @@
                     <div id="canvas"></div>
                     <div id="float"></div>
                     <div id="my_dataviz"></div>
-                    <div id="slider"></div>
+                    <div id="slider" style="height:60px;"></div>
                     <div id="canvas2"></div>
                     <div id="show">
                     </div>
                 </div>
                 <div class="card bgc" style="width: 550px;">
                     <div class="card-body">
-                        <h1 class="card-title">各縣市武漢肺炎確診人數</h1>
+                        <h1 class="card-title">武漢肺炎疫情與媒體聲浪的變化</h1>
                         <hr>
                         <h4 class="card-subtitle mb-2 text-muted">說明</h4>
-                        <p>拖拉滑條訂會切換月分範圍變化，滑鼠游動到各省圓圈會顯示該縣市當時的確診人數</p>
+                        <ul>
+                            　<li>上圖: 拖拉滑條訂會切換日期範圍變化，滑鼠游動到各省圓圈會顯示該城市當時的確診人數</li>
+                            　<li>下圖: </li>
+                        </ul>
                         <hr>
                         <p>
                             資料來源:
-                            <a href="https://data.gov.tw/dataset/118038">政府資料開放平台</a>
+                            <a href="https://zh.wikipedia.org/wiki/2019%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E7%97%85%E4%B8%AD%E5%9C%8B%E5%A4%A7%E9%99%B8%E7%97%85%E4%BE%8B%E6%95%B8%E6%93%9A">wiki 2019冠狀病毒病中國大陸病例數據</a>
                         </p>
                     </div>
                 </div>
@@ -96,7 +99,7 @@
         // 寬高
         const etendues = d3.select("#canvas").node();
         const width = parseInt(window.getComputedStyle(etendues).width);
-        const height = width / 1.5;
+        const height = width / 1.9;
 
         // 地圖
         const geo_path = "https://raw.githubusercontent.com/yezongyang/china-geojson/master/china.json";
@@ -141,7 +144,7 @@
             max = 66953;
             let scale = d3.scalePow()
                 .exponent(0.3)
-                .range([0, 30])
+                .range([0, 20])
                 .domain([0, max]);
 
             // projection
