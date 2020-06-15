@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>105703011 資科四 林彥賓 hw1</title>
+    <title>武漢肺炎疫情與媒體聲浪的變化</title>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-array.v1.min.js"></script>
     <script src="https://d3js.org/d3-geo.v1.min.js"></script>
@@ -31,14 +31,19 @@
                         <hr>
                         <h4 class="card-subtitle mb-2 text-muted">說明</h4>
                         <ul>
-                            　<li>上圖: 拖拉滑條訂會切換日期範圍變化，滑鼠游動到各省圓圈會顯示該城市當時的確診人數</li>
-                            　<li>下圖: </li>
+                            　<li>上圖: 拖拉滑條訂會切換日期範圍變化，滑鼠游動到各省圓圈會顯示該城市當時的確診人數。</li>
+                            　<li>下圖: 依照滑條選取的日期範圍，顯示每日兩岸累計的確診案例，與不同媒體上相關文章量。滑鼠移動到線段上會顯示詳細的日期。</li>
                         </ul>
                         <hr>
                         <p>
                             資料來源:
                             <a href="https://zh.wikipedia.org/wiki/2019%E5%86%A0%E7%8B%80%E7%97%85%E6%AF%92%E7%97%85%E4%B8%AD%E5%9C%8B%E5%A4%A7%E9%99%B8%E7%97%85%E4%BE%8B%E6%95%B8%E6%93%9A">wiki 2019冠狀病毒病中國大陸病例數據</a>
+                            、
+                            <a href="https://github.com/owid/covid-19-data/tree/master/public/data">Our World in Data</a>
                         </p>
+
+
+                        
                     </div>
                 </div>
             </div>
@@ -288,6 +293,7 @@
                 .append("g")
                 .attr("transform", "translate(0,30)");
             const FinalDataPath = "https://raw.githubusercontent.com/Yan-Bin-Lin/Information_Visualization_Final/master/FinalData.csv";
+            
             var HidedAxis = [0, , 2, , 4, , 6, , , , 10]//有包含在裡面的欄位，會被隱藏
             CreMediaPara(0, 127);
             function CreMediaPara(begin, end) {
